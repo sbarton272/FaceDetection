@@ -1,0 +1,4 @@
+This is the baseline algorith for the 18-794 F14 contest.
+It correlates the zero-mean average face from the training data
+with the frame at various sizes and uses non-maximal suppression and
+thresholding to find faces.
