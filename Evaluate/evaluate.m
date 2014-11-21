@@ -1,4 +1,4 @@
-function evaluate(codeDir, devFlag)
+function evaluate(codeDir, devFlag, allDataFlag)
     addpath(codeDir)
 
     %% run sanity check
@@ -15,14 +15,19 @@ function evaluate(codeDir, devFlag)
             data = testData;
         end
 
-        try
+        if allDataFlag
+            load('../LabeledData/allData.mat', 'trainData');
+            data = trainData;
+        end
+
+        %try
             %% Evaluate code if sanity check passed
             [score, e] = evaluateCode(data, devFlag);
             disp('Evaluation Completed Successfully');
             disp(['Score: ',  num2str(score), ' on ', num2str(length(data)), ' images'])
-        catch ME
-            disp(['Evaluation Failed: ' ME.message]);
-        end
+        %catch ME
+        %    disp(['Evaluation Failed: ' ME.message]);
+        %end
     else
         disp('Failed Sanity Check');
     end
