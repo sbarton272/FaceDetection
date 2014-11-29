@@ -20,16 +20,16 @@ function evaluate(codeDir, devFlag, allDataFlag)
             data = trainData;
         end
 
-        %try
+        try
             %% Evaluate code if sanity check passed
             [score, e] = evaluateCode(data, devFlag);
             disp('Evaluation Completed Successfully');
             disp(['Score: ',  num2str(score), ' on ', num2str(length(data)), ' images'])
-        %catch ME
-        %    disp(['Evaluation Failed: ' ME.message]);
-        %end
+        catch ME
+            disp(['Evaluation Failed: ' ME.message]);
+        end
     else
-        disp('Failed Sanity Check');
+        disp(['Failed Sanity Check: ',e]);
     end
     disp('DONE.');
 

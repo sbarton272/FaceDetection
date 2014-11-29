@@ -4,7 +4,7 @@ function [features] = calcFeatures(integralImg, ix, iy, scale, filters)
 % filters is a cell array of vectors of filter structs
 
 % Prealloc features
-features = zeros(size(filters,1), 1);
+features = zeros(1,size(filters,1));
 
 % Iterate through all filters and apply each
 for i = 1:size(filters,1)
