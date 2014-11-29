@@ -3,6 +3,7 @@ function ens = train()
 
 % Positive examples
 FACE_DATA_FILE = '../LabeledData/devData.mat';
+NEG_EX_DIR = '../NegativeExamples/';
 
 FILTER_SIZE = [16 24];
 
@@ -18,7 +19,7 @@ end
 try
 	load('nonFaces.mat', nonFaces);
 catch
-	nonFaces = loadNonFaces(FILTER_SIZE(1), FILTER_SIZE(2));
+	nonFaces = loadNonFaces(NEG_EX_DIR, FILTER_SIZE(1), FILTER_SIZE(2));
 	save('nonFaces.mat', nonFaces);
 end
 
@@ -26,7 +27,7 @@ end
 try
 	load('filters.mat', filters);
 catch
-	filters = TODO
+	filters = generateFilters(FILTER_SIZE(1), FILTER_SIZE(2));
 	save('filters.mat', filters);
 end
 

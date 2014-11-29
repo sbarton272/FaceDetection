@@ -1,5 +1,5 @@
 function [faces] = loadFaces(dataFile, width, height)
-%% Generate positive test examples of specified size
+%% Generate positive test examples of specified size, grayscale
 
 %% Load
 load(dataFile, 'devData');
@@ -18,8 +18,6 @@ for i = 1:length(data)
 	end
 
 end
-
-save('faces.mat', faces);
 
 end
 
