@@ -7,7 +7,7 @@ for i = 1:length(data)
 	img = data{i};
 	integralImg = cumsum(cumsum(img),2);
 	integralImgSqr = cumsum(cumsum(img.^2),2);
-	X(i,:) = calcFeatures(integralImg, integralImgSqr, 0, 0, 1, filters, [height, width]);
+	X(i,:) = calcFeatures(integralImg, integralImgSqr, 1, 1, 1, filters, [height, width]);
 
 end
 end

@@ -4,7 +4,7 @@ filters = {};
 n = 1;
 
 %% Horizontal bars
-MIN_WIDTH = 4;
+MIN_WIDTH = 1;
 MIN_HEIGHT = 2;
 Y_STEP = 2;
 for x1 = 0:width
@@ -22,8 +22,8 @@ for x1 = 0:width
 end
 
 %% Vertical bars
-MIN_WIDTH = 2;
-MIN_HEIGHT = 4;
+MIN_WIDTH = 1;
+MIN_HEIGHT = 2;
 X_STEP = 2;
 for x1 = 0:width
 	for y1 = 0:height
@@ -40,7 +40,7 @@ for x1 = 0:width
 end
 
 %% Horizontal 3 bars
-MIN_WIDTH = 4;
+MIN_WIDTH = 1;
 MIN_HEIGHT = 3;
 Y_STEP = 3;
 for x1 = 0:width
@@ -60,7 +60,7 @@ end
 
 %% Vertical 3 bars
 MIN_WIDTH = 3;
-MIN_HEIGHT = 4;
+MIN_HEIGHT = 1;
 X_STEP = 3;
 for x1 = 0:width
 	for y1 = 0:height

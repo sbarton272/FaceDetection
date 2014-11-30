@@ -1,6 +1,9 @@
 function [bboxes] = detect_faces(frame,model)
     %% Consts
-    MIN_SCALE = 4;
+    MIN_SCALE = 2;
+    SCALE_FACTOR = .5;
+    X_STEP_SIZE = model.filterSize(2);
+    Y_STEP_SIZE = model.filterSize(1);
 
     %% Convert input image
     I = frame;
@@ -10,36 +13,36 @@ function [bboxes] = detect_faces(frame,model)
     bboxes = [];
     scale = 1;
     X = zeros(1,model.numParams);
+    
+    % Prescale down
+    scale = scale*SCALE_FACTOR;
+    frame = imresize(frame, SCALE_FACTOR);
+    
     while(size(frame,1) > MIN_SCALE*model.filterSize(1) && ...
           size(frame,2) > MIN_SCALE*model.filterSize(2))
         
         %% Reduce dimensions by half
-        scale = scale*.5;
-        frame = impyramid(frame, 'reduce');
-        size(frame)
-        % Testing
-        %scale = scale*.5;
-        %frame = impyramid(frame, 'reduce');
-        imshow(frame)
-        pause
+        % TODO do without rescaling, simply use feature calc with increased
+        % scale
+        scale = scale*SCALE_FACTOR;
+        frame = imresize(frame, SCALE_FACTOR);
 
         %% Integral images
         integralImg = cumsum(cumsum(frame),2);
-        integralImgSqr = cumsum(cumsum(img.^2),2);
+        integralImgSqr = cumsum(cumsum(frame.^2),2);
 
         %% TODO really slow - determine how many looked at and where slow
-        maxY = size(frame,1) - model.filterSize(1);
-        maxX = size(frame,2) - model.filterSize(2);
-        %for x = 23:2:(48 - model.filterSize(2))
-        %    for y = 5:2:(35 - model.filterSize(1))
-        for x = 1:10:maxX
-            for y = 1:10:maxY
-                %r = [y,y+model.filterSize(1),x,x+model.filterSize(2)] / scale;
-                %imshow( I(r(1):r(2),r(3):r(4)) );
-                %pause
+        maxY = size(frame,1) - model.filterSize(1) + 1;
+        maxX = size(frame,2) - model.filterSize(2) + 1;
+        xStep = max(uint32(round(X_STEP_SIZE * scale)), 1);
+        yStep = max(uint32(round(Y_STEP_SIZE * scale)), 1);
+        for x = 1:xStep:maxX
+            for y = 1:yStep:maxY
                 X(model.filterInd) = calcFeatures(integralImg, integralImgSqr, x, y, 1, model.filters, model.filterSize);
                 if predict(model.ens,X)
-                    bb = [x, y, model.filterSize(2), model.filterSize(1)] / scale
+                    bb = [double(x), double(y), ...
+                            double(model.filterSize(2)), double(model.filterSize(1))];
+                    bb = bb / scale
                     bboxes = [bboxes; bb];
                 end
             end

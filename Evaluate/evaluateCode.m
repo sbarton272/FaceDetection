@@ -9,7 +9,9 @@ model = load_model();
 for i=1:length(data)
     img = loadImg(data{i}.img_name);
     bboxes = detect_faces(img,model);
-    fs(i) = score_boxes(bboxes,data{i}.bboxes);
+    if ~isempty(bboxes)
+        fs(i) = score_boxes(bboxes,data{i}.bboxes);
+    end
 
     %% If desired show bounding boxes
     if showBox

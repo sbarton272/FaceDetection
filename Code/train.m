@@ -3,6 +3,7 @@ function model = train(devFlag)
 
 %% Consts
 FILTER_SIZE = [24 16];
+N = 50;
 
 %% Load data or compute if not already computed
 if devFlag
@@ -17,7 +18,6 @@ Y = [ones(size(posX,1),1); zeros(size(negX,1),1)];
 
 %% Perform AdaBoost
 % TODO create cascade
-N = 5;
 ens = fitensemble(X,Y,'Subspace',N,'Discriminant');
 
 %% Determine utilized features
@@ -136,7 +136,7 @@ try
 	load('dev/posX.mat', 'posX');
 catch
 	disp('Generating positive example features');
-	posX = applyFilters(faces, filters);
+ 	posX = applyFilters(faces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
 	save('dev/posX.mat', 'posX');
 end
  
@@ -145,7 +145,7 @@ try
 	load('dev/negX.mat', 'negX');
 catch
 	disp('Generating negative example features');
-	negX = applyFilters(nonFaces, filters);
+	negX = applyFilters(nonFaces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
 	save('dev/negX.mat', 'negX');
 end
 
