@@ -7,6 +7,7 @@ N = 50;
 
 %% Load data or compute if not already computed
 if devFlag
+    FILTER_SIZE = [12 8];
 	[posX, negX, filters] = loadDevExamples(FILTER_SIZE);
 else
 	[posX, negX, filters] = loadExamples(FILTER_SIZE);

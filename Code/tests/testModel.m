@@ -12,7 +12,7 @@ err = [0 0 0 0]; % Pos, False Pos, Neg, False Neg
 
 for i=1:length(data)
     img = data{i};
-    img = imresize(img, 8);
+    img = imresize(img, 4);
     bboxes = detect_faces(img,model);
         
     %% If desired show bounding boxes
