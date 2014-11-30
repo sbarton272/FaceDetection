@@ -1,24 +1,10 @@
-function filters = generateFilters(width, height)
+function filters = generateFilters(height, width)
 
 filters = {};
 n = 1;
 
-%% Rectangles
-MIN_WIDTH = 2;
-MIN_HEIGHT = 2;
-for x1 = 0:width
-	for y1 = 0:height
-		for x2 = (x1+MIN_WIDTH):width
-			for y2 = (y1+MIN_HEIGHT):height
-				filters{n} = newFilter(x1,y1,x2-x1,y2-y1,1);
-				n = n + 1;
-			end
-		end
-	end
-end
-
 %% Horizontal bars
-MIN_WIDTH = 2;
+MIN_WIDTH = 4;
 MIN_HEIGHT = 2;
 Y_STEP = 2;
 for x1 = 0:width
@@ -37,7 +23,7 @@ end
 
 %% Vertical bars
 MIN_WIDTH = 2;
-MIN_HEIGHT = 2;
+MIN_HEIGHT = 4;
 X_STEP = 2;
 for x1 = 0:width
 	for y1 = 0:height
@@ -52,6 +38,8 @@ for x1 = 0:width
 		end
 	end
 end
+
+%% TODO 3 groupings ones
 
 %% XOR Squares
 MIN_WIDTH = 2;

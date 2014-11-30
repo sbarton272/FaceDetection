@@ -1,4 +1,4 @@
-function [nonFaces] = loadNonFaces(dirPath, width, height)
+function [nonFaces] = loadNonFaces(dirPath, height, width)
 %% Generate negative test examples of specified size, grayscale
 
 files = dir(dirPath);

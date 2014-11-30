@@ -1,4 +1,4 @@
-function [faces] = loadFaces(dataFile, width, height)
+function [faces] = loadFaces(dataFile, height, width)
 %% Generate positive test examples of specified size, grayscale
 
 %% Load
@@ -13,7 +13,7 @@ for i = 1:length(data)
 	%% Get X,Y regions to extract
 	for j = 1:size(data{i}.bboxes,1)
 		bb = data{i}.bboxes(j,:);
-		face = loadFace(img,bb(1),bb(2),bb(3),bb(4),width,height);
+		face = loadFace(img,bb(1),bb(2),bb(3),bb(4),height,width);
 		faces{i+j-1} = face;
 	end
 
@@ -21,7 +21,7 @@ end
 
 end
 
-function face = loadFace(img,x,y,w,h,width,height)
+function face = loadFace(img,x,y,w,h,height,width)
 
 	% Sanity check as some bboxes go off image
 	if x < 1

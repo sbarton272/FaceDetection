@@ -1,10 +1,14 @@
 function model = train(devFlag)
 %% Viola-Jones Training
 
+%% Consts
+FILTER_SIZE = [24 16];
+
+%% Load data or compute if not already computed
 if devFlag
-	[posX negX] = loadDevExamples();
+	[posX, negX, filters] = loadDevExamples(FILTER_SIZE);
 else
-	[posX negX] = loadExamples();
+	[posX, negX, filters] = loadExamples(FILTER_SIZE);
 end
 
 %% Create X and Y
@@ -13,27 +17,37 @@ Y = [ones(size(posX,1),1); zeros(size(negX,1),1)];
 
 %% Perform AdaBoost
 % TODO create cascade
-N = 100;
-model = fitensemble(X,Y,'Subspace',N,'Discriminant');
+N = 2;
+ens = fitensemble(X,Y,'Subspace',N,'Discriminant');
 
-% Apply with predict(ens,Xi)
+%% Determine utilized features
+filterInd = find(sum(ens.UsePredForLearner,2) ~= 0);
+filtersUsed = filters(filterInd);
+disp(['Num of filters used:', num2str(length(filterInd))]);
+
+%% Creat model and save
+model = struct('ens', ens, 'filterSize', FILTER_SIZE);
+model.filters = filtersUsed;
+model.numParams = length(filters);
+model.filterInd = filterInd;
+
 if devFlag
     save('dev/trainedModel.mat', 'model');    
 else
     save('training/trainedModel.mat', 'model');
 end
 
+disp('Training complete');
+
 end
 
 %============================================
 
-function [posX negX] = loadExamples();
+function [posX, negX, filters] = loadExamples(FILTER_SIZE);
 
 % Constants
 FACE_DATA_FILE = '../LabeledData/trainData.mat';
 NEG_EX_DIR = '../NegativeExamples/';
-
-FILTER_SIZE = [16 24];
 
 %% Load training faces
 try
@@ -84,13 +98,11 @@ end
 
 %============================================
 
-function [posX negX] = loadDevExamples();
+function [posX, negX, filters] = loadDevExamples(FILTER_SIZE);
 
 % Constants
 FACE_DATA_FILE = '../LabeledData/devData.mat';
 NEG_EX_DIR = '../NegativeExamples/devNegExamples/';
-
-FILTER_SIZE = [3 6];
 
 %% Load dev faces
 try

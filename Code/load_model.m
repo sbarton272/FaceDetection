@@ -1,3 +1,6 @@
 function [model] = load_model()
-    load('baseline_model.mat');
+    %load('trainedModel.mat', 'model');
+
+    addpath('../Code/dev/');
+    load('dev/trainedModel.mat', 'model');
 end

@@ -1,32 +1,41 @@
 function [bboxes] = detect_faces(frame,model)
+    %% Consts
+    MIN_SCALE = 4;
+
+    %% Convert input image
     if(size(frame,3)>1)
         frame = rgb2gray(frame);
     end
-    frame = double(frame);
-    im_size = size(frame);
-    resize_scale = .5;
-    bbox_size = size(model.avg_face);
+    frame = im2double(frame);
+    imSize = size(frame);
+
+    %% Calculate windows are varying scales
     bboxes = [];
-    ind = 0;
-    while(size(frame,1)>4*size(model.avg_face,1) && size(frame,2)>4*size(model.avg_face,2))
-        ind = ind+1;
-        frame = imresize(frame,resize_scale);    
-        bbox_size = bbox_size/resize_scale;
-        face_output = imfilter(frame,model.avg_face,'replicate');
-        output = face_output;
-        [y,x] = anms(abs(output),10^6);
-        y = y/(resize_scale^ind);
-        x = x/(resize_scale^ind);
-        for i=1:length(y)
-            x1 = floor(x(i)-bbox_size(2)/2);
-            y1 = floor(y(i)-bbox_size(1)/2);
-            x2 = x1+bbox_size(2)-1;
-            y2 = y1+bbox_size(1)-1;
-            x1 = max(x1,1);
-            y1 = max(y1,1);
-            x2 = min(x2,im_size(2));
-            y2 = min(y2,im_size(1));
-            bboxes = [bboxes; x1 y1 x2-x1+1 y2-y1+1];
+    scale = 1;
+    X = zeros(1,model.numParams);
+    while(size(frame,1) > MIN_SCALE*model.filterSize(1) && ...
+          size(frame,2) > MIN_SCALE*model.filterSize(2))
+        %% Reduce dimensions by half
+        scale = scale*.5;
+        frame = impyramid(frame, 'reduce');
+        size(frame)
+      
+        integralImg = cumsum(cumsum(frame),2);
+
+        %% TODO really slow - determine how many looked at and where slow
+        %% TODO scale bb appropriatly
+        maxY = size(frame,1) - model.filterSize(1);
+        maxX = size(frame,2) - model.filterSize(2);
+        for x = 1:6:maxX
+            for y = 1:6:maxY
+                X(model.filterInd) = calcFeatures(integralImg, x, y, 1, model.filters);
+                if predict(model.ens,X)
+                    bb = [x, y, model.filterSize(2), model.filterSize(1)];
+                    bboxes = [bboxes; bb/scale];
+                    
+                    bb
+                end
+            end
         end
     end
 end
