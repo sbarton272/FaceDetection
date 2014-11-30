@@ -7,14 +7,18 @@ data = devData;
 
 %% Save all found faces as seperate images size width X height
 faces = {};
+n = 1;
 for i = 1:length(data)
 
 	img = loadImg(data{i}.img_name);
+    img = preprocessImg(img);
+    
 	%% Get X,Y regions to extract
 	for j = 1:size(data{i}.bboxes,1)
 		bb = data{i}.bboxes(j,:);
 		face = loadFace(img,bb(1),bb(2),bb(3),bb(4),height,width);
-		faces{i+j-1} = face;
+		faces{n} = face;
+        n = n+1;
 	end
 
 end
@@ -57,7 +61,6 @@ function face = loadFace(img,x,y,w,h,height,width)
 	% Extract face
 	face = img(uint16(y):uint16(y+h), uint16(x):uint16(x+w));
 	face = imresize(face, [height, width]);
-	face = im2double(face);
 
 end
 
@@ -65,9 +68,4 @@ end
 function img = loadImg(filePath)
     filePath = ['../', filePath, '.jpg'];
     img = imread(filePath);
-    
-    % Convert to greyscale
-    if(size(img,3)>1)
-        img = rgb2gray(img);
-    end
 end
