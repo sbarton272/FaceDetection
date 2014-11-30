@@ -1,0 +1,82 @@
+function filters = generateFilters(width, height)
+
+filters = {};
+n = 1;
+
+%% Rectangles
+MIN_WIDTH = 2;
+MIN_HEIGHT = 2;
+for x1 = 0:width
+	for y1 = 0:height
+		for x2 = (x1+MIN_WIDTH):width
+			for y2 = (y1+MIN_HEIGHT):height
+				filters{n} = newFilter(x1,y1,x2-x1,y2-y1,1);
+				n = n + 1;
+			end
+		end
+	end
+end
+
+%% Horizontal bars
+MIN_WIDTH = 2;
+MIN_HEIGHT = 2;
+Y_STEP = 2;
+for x1 = 0:width
+	for y1 = 0:height
+		for x2 = (x1+MIN_WIDTH):width
+			for y2 = (y1+MIN_HEIGHT):Y_STEP:height
+				h = uint32((y2-y1)/2);
+				f1 = newFilter(x1,y1,x2-x1,h,1);
+				f2 = newFilter(x1,y1+h,x2-x1,h,-1);
+				filters{n} = [f1 f2];
+				n = n + 1;
+			end
+		end
+	end
+end
+
+%% Vertical bars
+MIN_WIDTH = 2;
+MIN_HEIGHT = 2;
+X_STEP = 2;
+for x1 = 0:width
+	for y1 = 0:height
+		for x2 = (x1+MIN_WIDTH):X_STEP:width
+			for y2 = (y1+MIN_HEIGHT):height
+				w = uint32((x2-x1)/2);
+				f1 = newFilter(x1,y1,w,y2-y1,1);
+				f2 = newFilter(x1+w,y1,w,y2-y1,-1);
+				filters{n} = [f1 f2];
+				n = n + 1;
+			end
+		end
+	end
+end
+
+%% XOR Squares
+MIN_WIDTH = 2;
+MIN_HEIGHT = 2;
+X_STEP = 2;
+Y_STEP = 2;
+for x1 = 0:width
+	for y1 = 0:height
+		for x2 = (x1+MIN_WIDTH):X_STEP:width
+			for y2 = (y1+MIN_HEIGHT):Y_STEP:height
+				w = uint32((x2-x1)/2);
+				h = uint32((y2-y1)/2);
+				f1 = newFilter(x1,   y1,   w,h, 1);
+				f2 = newFilter(x1+w, y1,   w,h,-1);
+				f3 = newFilter(x1,   y1+h, w,h,-1);
+				f4 = newFilter(x1+w, y1+h, w,h, 1);
+				filters{n} = [f1 f2 f3 f4];
+				n = n + 1;
+			end
+		end
+	end
+end
+
+end
+
+function f = newFilter(x,y,w,h,weight)
+	f = struct('x',x,'y',y,'w',w,'h',h,'weight',weight);
+end
