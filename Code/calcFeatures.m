@@ -1,13 +1,13 @@
 function [features] = calcFeatures(integralImg, ix, iy, scale, filters)
 % Apply the given filters on the given integral image at the 
-% specified x,y location (upper left)
+% specified x,y location (upper left) - NOTE 0 indexed
 % filters is a cell array of vectors of filter structs
 
 % Prealloc features
-features = zeros(1,size(filters,1));
+features = zeros(1,length(filters));
 
 % Iterate through all filters and apply each
-for i = 1:size(filters,1)
+for i = 1:length(filters)
 	features(i) = applyFilter(integralImg, ix, iy, scale, filters{i});
 end
 
@@ -23,9 +23,9 @@ for i = 1:size(fltr,1)
 	region = fltr(i);
 
 	% Calc corners on img
-	x1 = ix + region.x*scale - 1;
+	x1 = ix + region.x*scale;
 	x2 = x1 + region.w*scale;
-	y1 = iy + region.y*scale - 1;
+	y1 = iy + region.y*scale;
 	y2 = y1 + region.h*scale;
 
 	% Use integral image properties
@@ -42,6 +42,6 @@ function x = get(X, ix, iy)
     elseif iy <= 0
         x = 0;
     else
-        x = X(ix,iy);
+        x = X(iy,ix);
     end
 end

@@ -57,6 +57,7 @@ function face = loadFace(img,x,y,w,h,width,height)
 	% Extract face
 	face = img(uint16(y):uint16(y+h), uint16(x):uint16(x+w));
 	face = imresize(face, [height, width]);
+	face = im2double(face);
 
 end
 
