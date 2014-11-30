@@ -11,6 +11,7 @@ FILTER_SIZE = [16 24];
 try
 	load('faces.mat', faces);
 catch
+	disp('Loading faces');
 	faces = loadFaces(FACE_DATA_FILE, FILTER_SIZE(1), FILTER_SIZE(2));
 	save('faces.mat', faces);
 end
@@ -19,6 +20,7 @@ end
 try
 	load('nonFaces.mat', nonFaces);
 catch
+	disp('Loading non-faces');
 	nonFaces = loadNonFaces(NEG_EX_DIR, FILTER_SIZE(1), FILTER_SIZE(2));
 	save('nonFaces.mat', nonFaces);
 end
@@ -27,6 +29,7 @@ end
 try
 	load('filters.mat', filters);
 catch
+	disp('Generating filters');
 	filters = generateFilters(FILTER_SIZE(1), FILTER_SIZE(2));
 	save('filters.mat', filters);
 end
@@ -35,6 +38,7 @@ end
 try
 	load('posX.mat', posX);
 catch
+	disp('Generating positive example features');
 	posX = applyFilters(faces, filters);
 	save('posX.mat', posX);
 end
@@ -43,6 +47,7 @@ end
 try
 	load('negX.mat', negX);
 catch
+	disp('Generating negative example features');
 	negX = applyFilters(nonFaces, filters);
 	save('negX.mat', negX);
 end
