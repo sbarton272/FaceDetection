@@ -1,6 +1,6 @@
 function [bboxes] = detect_faces(frame,model)
     %% Consts
-    MIN_SCALE = 1;
+    MIN_SCALE = 4;
     SCALE_FACTOR = .5;
     X_STEP_SIZE = model.filterSize(2);
     Y_STEP_SIZE = model.filterSize(1);

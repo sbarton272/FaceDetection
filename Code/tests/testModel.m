@@ -1,6 +1,7 @@
 function testModel()
-addpath('..');
-addpath('dev/');
+addpath('..\dev\');
+addpath('..\');
+
 
 model = load_model();
 load('dev/faces.mat', 'faces');

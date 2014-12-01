@@ -1,9 +1,10 @@
 function model = train(devFlag)
 %% Viola-Jones Training
+rng('default'); % For consistency
 
 %% Consts
 FILTER_SIZE = [24 16];
-N = 50;
+N = 20;
 
 %% Load data or compute if not already computed
 if devFlag
@@ -26,6 +27,22 @@ filterInd = find(sum(ens.UsePredForLearner,2) ~= 0);
 filtersUsed = filters(filterInd);
 disp(['Num of filters used: ', num2str(length(filterInd))]);
 
+%% Test how good the model is on training data
+if devFlag
+    x = X;
+    ind = find(sum(ens.UsePredForLearner,2) == 0);
+    x(:,ind) = 0;
+    y = predict(ens,x);
+    posTrue = sum((y+Y) == 2);
+    posFalse = sum((y-Y) == 1);
+    negFalse = sum((y-Y) == -1);
+    negTrue = sum((y+Y) == 0);
+    disp(['Pos ', num2str(posTrue / (posTrue + posFalse)), ' ', ...
+                  num2str(posFalse / (posTrue + posFalse))]);
+    disp(['Neg ', num2str(negTrue / (negTrue + negFalse)), ' ', ...
+                  num2str(negFalse / (negTrue + negFalse))]);
+end
+
 %% Creat model and save
 model = struct('ens', ens, 'filterSize', FILTER_SIZE);
 model.filters = filtersUsed;
@@ -33,7 +50,7 @@ model.numParams = length(filters);
 model.filterInd = filterInd;
 
 if devFlag
-    save('dev/trainedModel.mat', 'model');    
+    save('dev/trainedModel.mat', 'model');
 else
     save('training/trainedModel.mat', 'model');
 end
