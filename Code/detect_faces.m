@@ -17,6 +17,8 @@ function [bboxes] = detect_faces(frame,model)
     % Prescale down
     scale = scale*SCALE_FACTOR;
     frame = imresize(frame, SCALE_FACTOR);
+    scale = scale*SCALE_FACTOR;
+    frame = imresize(frame, SCALE_FACTOR);
     
     while(size(frame,1) > MIN_SCALE*model.filterSize(1) && ...
           size(frame,2) > MIN_SCALE*model.filterSize(2))
@@ -31,7 +33,8 @@ function [bboxes] = detect_faces(frame,model)
         integralImg = cumsum(cumsum(frame),2);
         integralImgSqr = cumsum(cumsum(frame.^2),2);
 
-        %% TODO really slow - determine how many looked at and where slow
+        % TODO really slow - determine how many looked at and where slow
+        %% Iterate over all possible faces
         maxY = size(frame,1) - model.filterSize(1) + 1;
         maxX = size(frame,2) - model.filterSize(2) + 1;
         xStep = max(uint32(round(X_STEP_SIZE * scale)), 1);
@@ -39,7 +42,10 @@ function [bboxes] = detect_faces(frame,model)
         for x = 1:xStep:maxX
             for y = 1:yStep:maxY
                 X(model.filterInd) = calcFeatures(integralImg, integralImgSqr, x, y, 1, model.filters, model.filterSize);
-                if predict(model.ens,X)
+                
+                %% Detect face
+                if predictCascade(model.cascade,X)
+                %if predict(model.ens,X)
                     bb = [double(x), double(y), ...
                             double(model.filterSize(2)), double(model.filterSize(1))];
                     bb = bb / scale

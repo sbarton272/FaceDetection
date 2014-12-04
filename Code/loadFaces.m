@@ -2,8 +2,12 @@ function [faces] = loadFaces(dataFile, height, width)
 %% Generate positive test examples of specified size, grayscale
 
 %% Load
-load(dataFile, 'devData');
-data = devData;
+load(dataFile);
+try
+    data = devData;
+catch
+    data = trainData;
+end
 
 %% Save all found faces as seperate images size width X height
 faces = {};

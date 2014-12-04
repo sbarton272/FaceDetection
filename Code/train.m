@@ -1,9 +1,12 @@
 function model = train(devFlag)
 %% Viola-Jones Training
-rng('default'); % For consistency
+%rng('default'); % For consistency
 
 %% Consts
 FILTER_SIZE = [24 16];
+fRate = .35;
+dRate = .8;
+FRate = .01;
 N = 20;
 
 %% Load data or compute if not already computed
@@ -19,28 +22,30 @@ X = [posX; negX];
 Y = [ones(size(posX,1),1); zeros(size(negX,1),1)];
 
 %% Perform AdaBoost
-% TODO create cascade
 ens = fitensemble(X,Y,'Subspace',N,'Discriminant');
+cascade = generateCascade(posX,negX,fRate,dRate,FRate);
 
 %% Determine utilized features
-filterInd = find(sum(ens.UsePredForLearner,2) ~= 0);
+used = zeros(size(X,2),1);
+for i = 1:length(cascade)
+    used = used + sum(cascade{i}.UsePredForLearner,2);
+end
+filterInd = find(used ~= 0);
 filtersUsed = filters(filterInd);
 disp(['Num of filters used: ', num2str(length(filterInd))]);
 
 %% Test how good the model is on training data
 if devFlag
     x = X;
-    ind = find(sum(ens.UsePredForLearner,2) == 0);
-    x(:,ind) = 0;
+    x(:,sum(ens.UsePredForLearner,2) == 0) = 0;
     y = predict(ens,x);
     posTrue = sum((y+Y) == 2);
     posFalse = sum((y-Y) == 1);
-    negFalse = sum((y-Y) == -1);
-    negTrue = sum((y+Y) == 0);
-    disp(['Pos ', num2str(posTrue / (posTrue + posFalse)), ' ', ...
-                  num2str(posFalse / (posTrue + posFalse))]);
-    disp(['Neg ', num2str(negTrue / (negTrue + negFalse)), ' ', ...
-                  num2str(negFalse / (negTrue + negFalse))]);
+    disp(['Ens Valid Detect ', num2str(posTrue / size(posX,1))]);
+    disp(['Ens False Detect ', num2str(posFalse / size(negX,1))]);
+              
+    [F, D, ~] = evalCascade(cascade, posX, negX);
+    disp(['Cascade D:', num2str(D), ' F:', num2str(F)]);
 end
 
 %% Creat model and save
@@ -48,6 +53,7 @@ model = struct('ens', ens, 'filterSize', FILTER_SIZE);
 model.filters = filtersUsed;
 model.numParams = length(filters);
 model.filterInd = filterInd;
+model.cascade = cascade;
 
 if devFlag
     save('dev/trainedModel.mat', 'model');
@@ -61,7 +67,7 @@ end
 
 %============================================
 
-function [posX, negX, filters] = loadExamples(FILTER_SIZE);
+function [posX, negX, filters] = loadExamples(FILTER_SIZE)
 
 % Constants
 FACE_DATA_FILE = '../LabeledData/trainData.mat';
@@ -116,7 +122,7 @@ end
 
 %============================================
 
-function [posX, negX, filters] = loadDevExamples(FILTER_SIZE);
+function [posX, negX, filters] = loadDevExamples(FILTER_SIZE)
 
 % Constants
 FACE_DATA_FILE = '../LabeledData/devData.mat';
