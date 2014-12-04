@@ -1,10 +1,8 @@
-function cascade = generateCascade(P,N,f,d,Ftarget,temp,NPredToSample,verbose)
+function cascade = generateCascade(P,N,f,d,Ftarget,temp,MAX_N,MAX_ENS,...
+    NPredToSample,verbose)
 
 disp(['Training cascade f:', num2str(f), ' d:', num2str(d),...
       ' Ftarget:', num2str(Ftarget)]);
-
-MAX_N = 1;
-MAX_ENS = 4;
   
 F = 1;
 D = 1;
@@ -27,7 +25,7 @@ while F > Ftarget
         n = n + 1;
     
         % Train until high enough detect rate
-        for costNotDetect = 1:.1:2
+        for costNotDetect = 1:.1:1.9
             C = [0 (2 - costNotDetect); costNotDetect 0];
             cascade{i} = fitensemble(X,Y,'Subspace',n,temp,...
                             'NPredToSample',NPredToSample,'Cost',C);
@@ -53,7 +51,7 @@ while F > Ftarget
     
 	if verbose
         disp(['Weak learner added i:', num2str(i), ' n:', num2str(n),...
-            ' F:', num2str(F), ' D:', num2str(D)]);
+            ' D:', num2str(D), ' F:', num2str(F)]);
     end
         
     if i >= MAX_ENS

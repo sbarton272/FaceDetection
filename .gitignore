@@ -1,3 +1,5 @@
 *.asv
 *.jpg
 Code/training
+Code/dev
+Code/validation

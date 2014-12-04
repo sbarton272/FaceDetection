@@ -1,24 +1,30 @@
-function model = train(devFlag)
+function model = train(devFlag, testFlag)
 %% Viola-Jones Training
 %rng('default'); % For consistency
 
 %% Consts
-CASCADE_VERBOSE = false;
+CASCADE_VERBOSE = true;
 
 fRate = .3;
 dRate = .99;
-FRate = .01;
-N = 100;
-eTemp = templateDiscriminant('DiscrimType','quadratic');
-cTemp = templateDiscriminant('DiscrimType','linear');
-NPredToSample = 5;
+FRate = .001;
+
+N = 1;
+NPredToSample = 10;
+eTemp = templateDiscriminant('DiscrimType','linear');
+% Quadratic better, N can get too big
+
+% Cascade specific
+MAX_N = 10;
+MAX_ENS = 20;
+cTemp = templateDiscriminant('DiscrimType','linear','SaveMemory','on');
 
 %% Load data or compute if not already computed
 if devFlag
     FILTER_SIZE = [12 8];
     SAVE_DIR = 'dev/';
     FACE_DATA_FILE = '../LabeledData/devData.mat';
-    NEG_EX_DIR = '../NegativeExamples/devNegExamples/';
+    NEG_EX_DIR = '../NegativeExamples/valNegExamples/';
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_DIR, FILTER_SIZE);
 else
     FILTER_SIZE = [24 16];
@@ -27,6 +33,11 @@ else
     NEG_EX_DIR = '../NegativeExamples/';
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_DIR, FILTER_SIZE);
 end
+
+SAVE_DIR = 'validation/';
+FACE_DATA_FILE = '../LabeledData/valData.mat';
+NEG_EX_DIR = '../NegativeExamples/valNegExamples/';
+[valPX, valNX, ~] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_DIR, FILTER_SIZE);
 
 disp(['Num pos: ', num2str(size(posX,1)), ' Num  neg: ', num2str(size(negX,1))]);
 
@@ -44,19 +55,20 @@ disp('======================');
 disp(['Num of filters used: ', num2str(length(eFilterInd))]);
 
 %% Test how good the model is on training data
-if devFlag
-    x = X;
+if testFlag
+    x = [valPX; valNX];
     x(:,sum(ens.UsePredForLearner,2) == 0) = 0;
     y = predict(ens,x);
+    Y = [ones(size(valPX,1),1); zeros(size(valNX,1),1)];
     posTrue = sum((y+Y) == 2);
     posFalse = sum((y-Y) == 1);
-    disp(['Ens     D: ', num2str(posTrue / size(posX,1)), ...
-                 ' F: ', num2str(posFalse / size(negX,1))]);
+    disp(['Ens     D: ', num2str(posTrue / size(valPX,1)), ...
+                 ' F: ', num2str(posFalse / size(valNX,1))]);
     disp('======================');
 end
 
 %% Perform cascade
-cascade = generateCascade(posX,negX,fRate,dRate,FRate,cTemp,NPredToSample,CASCADE_VERBOSE);
+cascade = generateCascade(posX,negX,fRate,dRate,FRate,cTemp,MAX_N,MAX_ENS,NPredToSample,CASCADE_VERBOSE);
 
 %% Determine utilized features for cascade
 used = zeros(size(X,2),1);
@@ -70,11 +82,11 @@ disp('======================');
 disp(['Num of filters used: ', num2str(length(cFilterInd))]);
 
 %% Test how good the model is on training data
-if devFlag
-    pX = posX;
-    pX(:,used == 0) = 0;
-    nX = negX;
-    nX(:,used == 0) = 0;
+if testFlag
+    pX = valPX;
+    %pX(:,used == 0) = 0;
+    nX = valNX;
+    %nX(:,used == 0) = 0;
     [F, D, ~] = evalCascade(cascade, pX, nX);
     disp(['Cascade D :', num2str(D), ' F: ', num2str(F)]);
     disp('======================');
