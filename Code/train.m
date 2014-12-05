@@ -1,4 +1,4 @@
-function model = train(devFlag, testFlag)
+function model = train(devFlag, testFlag, saveFlag)
 %% Viola-Jones Training
 %rng('default'); % For consistency
 
@@ -6,38 +6,38 @@ function model = train(devFlag, testFlag)
 CASCADE_VERBOSE = true;
 
 fRate = .3;
-dRate = .99;
-FRate = .001;
+dRate = .85;
+FRate = .01;
 
-N = 1;
-NPredToSample = 10;
-eTemp = templateDiscriminant('DiscrimType','linear');
-% Quadratic better, N can get too big
+N = 10;
+NPredToSample = 30;
+eTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
+% Quadratic better, N can get too big, NPredToSample is the key > 20
 
 % Cascade specific
 MAX_N = 10;
-MAX_ENS = 20;
-cTemp = templateDiscriminant('DiscrimType','linear','SaveMemory','on');
+MAX_ENS = 3;
+cTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
 
 %% Load data or compute if not already computed
 if devFlag
     FILTER_SIZE = [12 8];
     SAVE_DIR = 'dev/';
-    FACE_DATA_FILE = '../LabeledData/devData.mat';
-    NEG_EX_DIR = '../NegativeExamples/valNegExamples/';
-	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_DIR, FILTER_SIZE);
+    FACE_DATA_FILE = '../LabeledData/delData.mat';
+    NEG_EX_FILE = '../LabeledData/devNegData.mat';
+	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
 else
-    FILTER_SIZE = [24 16];
-    SAVE_DIR = 'training/';
-    FACE_DATA_FILE = '../LabeledData/trainData.mat';
-    NEG_EX_DIR = '../NegativeExamples/';
-	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_DIR, FILTER_SIZE);
+    FILTER_SIZE = [12 8];
+    SAVE_DIR = 'smTraining/';
+    FACE_DATA_FILE = '../LabeledData/smTrainData.mat';
+    NEG_EX_FILE = '../LabeledData/smTrainNegData.mat';
+	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
 end
 
 SAVE_DIR = 'validation/';
 FACE_DATA_FILE = '../LabeledData/valData.mat';
-NEG_EX_DIR = '../NegativeExamples/valNegExamples/';
-[valPX, valNX, ~] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_DIR, FILTER_SIZE);
+NEG_EX_FILE = '../LabeledData/valNegData.mat';
+[valPX, valNX, ~] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
 
 disp(['Num pos: ', num2str(size(posX,1)), ' Num  neg: ', num2str(size(negX,1))]);
 
@@ -94,15 +94,17 @@ end
 
 %% Creat model and save
 model = struct('ens', ens, 'filterSize', FILTER_SIZE);
-model.filters = eFiltersUsed;
+model.filters = cFiltersUsed;
 model.numParams = length(filters);
-model.filterInd = eFilterInd;
+model.filterInd = cFilterInd;
 model.cascade = cascade;
 
-if devFlag
-    save('dev/trainedModel.mat', 'model');
-else
-    save('training/trainedModel.mat', 'model');
+if saveFlag
+    if devFlag
+        save('dev/trainedModel.mat', 'model');
+    else
+        save('training/trainedModel.mat', 'model');
+    end
 end
 
 disp('Training complete');
@@ -112,51 +114,59 @@ end
 %============================================
 
 function [posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, ...
-    NEG_EX_DIR, FILTER_SIZE)
+    NEG_EX_FILE, FILTER_SIZE)
 
-%% Load training faces
-try
-	load([SAVE_DIR, 'faces.mat'], 'faces');
-catch
-	disp('Loading faces');
-	faces = loadFaces(FACE_DATA_FILE, FILTER_SIZE(1), FILTER_SIZE(2));
-	save([SAVE_DIR, 'faces.mat'], 'faces');
-end
+NEG_EX_DIR = '../NegativeExamples/';
 
-%% Load non-faces
-try
-	load([SAVE_DIR, 'nonFaces.mat'], 'nonFaces');
-catch
-	disp('Loading non-faces');
-	nonFaces = loadNonFaces(NEG_EX_DIR, FILTER_SIZE(1), FILTER_SIZE(2));
-	save([SAVE_DIR, 'nonFaces.mat'], 'nonFaces');
-end
-
-%% Generate filters
 try
 	load([SAVE_DIR, 'filters.mat'], 'filters');
+  	load([SAVE_DIR, 'posX.mat'], 'posX');
+   	load([SAVE_DIR, 'negX.mat'], 'negX');
 catch
-	disp('Generating filters');
-	filters = generateFilters(FILTER_SIZE(1), FILTER_SIZE(2));
-	save([SAVE_DIR, 'filters.mat'], 'filters');
-end
+    %% Load training faces
+    try
+        load([SAVE_DIR, 'faces.mat'], 'faces');
+    catch
+        disp('Loading faces');
+        faces = loadFaces(FACE_DATA_FILE, FILTER_SIZE(1), FILTER_SIZE(2));
+        save([SAVE_DIR, 'faces.mat'], 'faces');
+    end
 
-%% Apply filters to faces
-try
-	load([SAVE_DIR, 'posX.mat'], 'posX');
-catch
-	disp('Generating positive example features');
-	posX = applyFilters(faces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
-	save([SAVE_DIR, 'posX.mat'], 'posX');
-end
- 
-%% Apply filters to non-faces
-try
-	load([SAVE_DIR, 'negX.mat'], 'negX');
-catch
-	disp('Generating negative example features');
-	negX = applyFilters(nonFaces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
-	save([SAVE_DIR, 'negX.mat'], 'negX');
+    %% Load non-faces
+    try
+        load([SAVE_DIR, 'nonFaces.mat'], 'nonFaces');
+    catch
+        disp('Loading non-faces');
+        nonFaces = loadNonFaces(NEG_EX_DIR, NEG_EX_FILE, FILTER_SIZE(1), FILTER_SIZE(2));
+        save([SAVE_DIR, 'nonFaces.mat'], 'nonFaces');
+    end
+
+    %% Generate filters
+    try
+        load([SAVE_DIR, 'filters.mat'], 'filters');
+    catch
+        disp('Generating filters');
+        filters = generateFilters(FILTER_SIZE(1), FILTER_SIZE(2));
+        save([SAVE_DIR, 'filters.mat'], 'filters');
+    end
+
+    %% Apply filters to faces
+    try
+        load([SAVE_DIR, 'posX.mat'], 'posX');
+    catch
+        disp('Generating positive example features');
+        posX = applyFilters(faces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
+        save([SAVE_DIR, 'posX.mat'], 'posX');
+    end
+
+    %% Apply filters to non-faces
+    try
+        load([SAVE_DIR, 'negX.mat'], 'negX');
+    catch
+        disp('Generating negative example features');
+        negX = applyFilters(nonFaces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
+        save([SAVE_DIR, 'negX.mat'], 'negX');
+    end
 end
 
 end

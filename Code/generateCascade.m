@@ -17,7 +17,7 @@ while F > Ftarget
     %% Train new ensamble with false detects from prior ensamble
     X = [P; Npass];
     Y = [ones(size(P,1),1); zeros(size(Npass,1),1)];
-    n = 0; % Number of features in ensamble
+    n = 1; % Number of features in ensamble
     Fi = F;
     
     %% Add weak learners to learner until it meets cascade false detect req
@@ -25,7 +25,7 @@ while F > Ftarget
         n = n + 1;
     
         % Train until high enough detect rate
-        for costNotDetect = 1:.1:1.9
+        for costNotDetect = .8:.1:1.9
             C = [0 (2 - costNotDetect); costNotDetect 0];
             cascade{i} = fitensemble(X,Y,'Subspace',n,temp,...
                             'NPredToSample',NPredToSample,'Cost',C);

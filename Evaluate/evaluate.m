@@ -8,16 +8,13 @@ function evaluate(codeDir, devFlag, allDataFlag)
 
         %% Load appropriate data
         if devFlag
-            load('../LabeledData/devData.mat', 'devData');
-            data = devData;
+            load('../LabeledData/devData.mat', 'data');
         else
-            load('../LabeledData/testData.mat', 'testData');
-            data = testData;
+            load('../LabeledData/testData.mat', 'data');
         end
 
         if allDataFlag
-            load('../LabeledData/allData.mat', 'trainData');
-            data = trainData;
+            load('../LabeledData/allData.mat', 'data');
         end
 
         %try

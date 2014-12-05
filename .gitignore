@@ -1,5 +1,7 @@
 *.asv
 *.jpg
-Code/training
-Code/dev
-Code/validation
+Code/training/
+Code/dev/
+Code/validation/
+code/validation24/
+Code/smTraining/
