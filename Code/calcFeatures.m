@@ -25,7 +25,11 @@ for i = 1:length(filters)
 	coef = applyFilter(integralImg, ix, iy, scale, mu, filters{i});
 
 	% Normalize variance
-	features(i) = coef / sigma;
+    if sigma ~= 0
+        features(i) = coef / sigma;
+    else
+        features(i) = coef;
+    end
 
 end
 

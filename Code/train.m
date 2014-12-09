@@ -84,9 +84,9 @@ disp(['Num of filters used: ', num2str(length(cFilterInd))]);
 %% Test how good the model is on training data
 if testFlag
     pX = valPX;
-    %pX(:,used == 0) = 0;
+    pX(:,used == 0) = 0;
     nX = valNX;
-    %nX(:,used == 0) = 0;
+    nX(:,used == 0) = 0;
     [F, D, ~] = evalCascade(cascade, pX, nX);
     disp(['Cascade D :', num2str(D), ' F: ', num2str(F)]);
     disp('======================');

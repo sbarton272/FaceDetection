@@ -42,7 +42,8 @@ function [bboxes] = detect_faces(frame,model)
                 X(model.filterInd) = calcFeatures(integralImg, integralImgSqr, x, y, 1, model.filters, model.filterSize);
                 
                 %% Detect face
-                if predict(model.ens,X)
+                if predictCascade(model.cascade, X)
+                % if predict(model.ens,X)
                     bb = [double(x), double(y), ...
                             double(model.filterSize(2)), double(model.filterSize(1))];
                     bb = bb / scale
