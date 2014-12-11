@@ -3,10 +3,9 @@ FaceDetection
 
 Pattern Recognition Class Competition
 
-
 TODO
 ====
-- Basic feature
-- Basic test img (1 pos, 1 neg)
-- Train single classifier
-- Add more neg -> cascade
+- More negative
+- Cascade is overfitting
+- Need to work on extra stuff to make better
+- 

@@ -6,17 +6,17 @@ function model = train(devFlag, testFlag, saveFlag)
 CASCADE_VERBOSE = true;
 
 fRate = .3;
-dRate = .85;
+dRate = .90;
 FRate = .01;
 
 N = 10;
-NPredToSample = 30;
+NPredToSample = 10;
 eTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
 % Quadratic better, N can get too big, NPredToSample is the key > 20
 
 % Cascade specific
-MAX_N = 10;
-MAX_ENS = 3;
+MAX_N = 5;
+MAX_ENS = 10;
 cTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
 
 %% Load data or compute if not already computed
