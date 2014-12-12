@@ -9,7 +9,7 @@ function [bboxes] = detect_faces(frame,model)
     I = frame;
     frame = preprocessImg(frame);
 
-    %% Calculate windows are varying scales
+    %% Calculate windows at varying scales
     bboxes = [];
     scale = 1;
     X = zeros(1,model.numParams);
@@ -21,7 +21,7 @@ function [bboxes] = detect_faces(frame,model)
     while(size(frame,1) > MIN_SCALE*model.filterSize(1) && ...
           size(frame,2) > MIN_SCALE*model.filterSize(2))
         
-        %% Reduce dimensions by half
+        %% Reduce dimensions
         scale = scale*SCALE_FACTOR;
         frame = imresize(frame, SCALE_FACTOR);
 
