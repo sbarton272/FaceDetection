@@ -27,7 +27,7 @@ if devFlag
     NEG_EX_FILE = '../LabeledData/devNegData.mat';
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
 else
-    FILTER_SIZE = [12 8];
+    FILTER_SIZE = [24 16];
     SAVE_DIR = 'smTraining/';
     FACE_DATA_FILE = '../LabeledData/smTrainData.mat';
     NEG_EX_FILE = '../LabeledData/smTrainNegData.mat';
@@ -71,12 +71,15 @@ end
 cascade = generateCascade(posX,negX,fRate,dRate,FRate,cTemp,MAX_N,MAX_ENS,NPredToSample,CASCADE_VERBOSE);
 
 %% Determine utilized features for cascade
-used = zeros(size(X,2),1);
+cFilterInd = cell(size(cascade));
+cFiltersUsed = cell(size(cascade));
+allUsed = zeros(1,length(filters));
 for i = 1:length(cascade)
-    used = used + sum(cascade{i}.UsePredForLearner,2);
+    used = sum(cascade{i}.UsePredForLearner,2);
+    allUsed = allUsed + used;
+    cFilterInd{i} = find(used ~= 0);
+    cFiltersUsed{i} = filters(cFilterInd);
 end
-cFilterInd = find(used ~= 0);
-cFiltersUsed = filters(cFilterInd);
 
 disp('======================');
 disp(['Num of filters used: ', num2str(length(cFilterInd))]);
@@ -84,16 +87,16 @@ disp(['Num of filters used: ', num2str(length(cFilterInd))]);
 %% Test how good the model is on training data
 if testFlag
     pX = valPX;
-    pX(:,used == 0) = 0;
+    pX(:,allUsed == 0) = 0;
     nX = valNX;
-    nX(:,used == 0) = 0;
+    nX(:,allUsed == 0) = 0;
     [F, D, ~] = evalCascade(cascade, pX, nX);
     disp(['Cascade D :', num2str(D), ' F: ', num2str(F)]);
     disp('======================');
 end
 
 %% Creat model and save
-model = struct('ens', ens, 'filterSize', FILTER_SIZE);
+model = struct('filterSize', FILTER_SIZE);
 model.filters = cFiltersUsed;
 model.numParams = length(filters);
 model.filterInd = cFilterInd;
@@ -111,7 +114,7 @@ disp('Training complete');
 
 end
 
-%============================================
+%==========================================================================
 
 function [posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, ...
     NEG_EX_FILE, FILTER_SIZE)

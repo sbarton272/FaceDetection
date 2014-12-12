@@ -18,6 +18,12 @@ mu = mu / N;
 mu2 = getArea(integralImgSqr, ix, ix + scale*filterSize(2), iy, iy + scale*filterSize(1));
 mu2 = mu2 / N;
 sigma = sqrt(mu2 - mu^2);
+if (mu2 - mu^2) < 0
+    mu2
+    mu^2
+    integralImg
+    sigma = 0;
+end
 
 % Iterate through all filters and apply each
 for i = 1:length(filters)
