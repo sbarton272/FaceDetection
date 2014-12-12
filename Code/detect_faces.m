@@ -46,5 +46,8 @@ function [bboxes] = detect_faces(frame,model)
                 end
             end
         end
+
+        break;
+
     end
 end

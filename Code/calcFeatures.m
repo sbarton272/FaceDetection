@@ -19,9 +19,7 @@ mu2 = getArea(integralImgSqr, ix, ix + scale*filterSize(2), iy, iy + scale*filte
 mu2 = mu2 / N;
 sigma = sqrt(mu2 - mu^2);
 if (mu2 - mu^2) < 0
-    mu2
-    mu^2
-    integralImg
+    % To deal with float error
     sigma = 0;
 end
 

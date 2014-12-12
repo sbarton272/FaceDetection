@@ -18,7 +18,10 @@ for i=1:length(data)
         nBoxes = size(data{i}.bboxes,1);
         nFoundBoxes = size(bboxes,1);
         clrs = [repmat(clrBlue, nBoxes,1); repmat(clrGreen, nFoundBoxes,1)];
-        boxes = [data{i}.bboxes; bboxes];
+
+        [overlapBoxes, noOverlapBoxes] = overlapedBoxes(data{i}.bboxes, bboxes)
+        
+        boxes = [data{i}.bboxes; overlapBoxes];
         shapeInserter = vision.ShapeInserter('BorderColor','Custom', 'CustomBorderColor', clrs);
         img = step(shapeInserter, double(img), boxes);
         numFound = size(bboxes);

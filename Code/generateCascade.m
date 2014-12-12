@@ -1,4 +1,4 @@
-function cascade = generateCascade(P,N,f,d,Ftarget,temp,MAX_N,MAX_ENS,...
+function cascade = generateCascade(P,N,f,d,Ftarget,temp,MIN_N,MAX_N,MAX_ENS,...
     NPredToSample,verbose)
 
 disp(['Training cascade f:', num2str(f), ' d:', num2str(d),...
@@ -17,7 +17,7 @@ while F > Ftarget
     %% Train new ensamble with false detects from prior ensamble
     X = [P; Npass];
     Y = [ones(size(P,1),1); zeros(size(Npass,1),1)];
-    n = 1; % Number of features in ensamble
+    n = MIN_N; % Number of features in ensamble
     Fi = F;
     
     %% Add weak learners to learner until it meets cascade false detect req

@@ -7,16 +7,17 @@ CASCADE_VERBOSE = true;
 
 fRate = .3;
 dRate = .90;
-FRate = .01;
+FRate = .001;
 
 N = 10;
-NPredToSample = 10;
+NPredToSample = 30;
 eTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
 % Quadratic better, N can get too big, NPredToSample is the key > 20
 
 % Cascade specific
-MAX_N = 5;
-MAX_ENS = 10;
+MIN_N = 5;
+MAX_N = 10;
+MAX_ENS = 5;
 cTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
 
 %% Load data or compute if not already computed
@@ -28,7 +29,7 @@ if devFlag
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
 else
     FILTER_SIZE = [24 16];
-    SAVE_DIR = 'smTraining/';
+    SAVE_DIR = 'training/';
     FACE_DATA_FILE = '../LabeledData/smTrainData.mat';
     NEG_EX_FILE = '../LabeledData/smTrainNegData.mat';
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
@@ -50,7 +51,6 @@ ens = fitensemble(X,Y,'Subspace',N,eTemp,'NPredToSample',NPredToSample);
 
 %% Determine utilized features for cascade
 eFilterInd = find(sum(ens.UsePredForLearner,2) ~= 0);
-eFiltersUsed = filters(eFilterInd);
 disp('======================');
 disp(['Num of filters used: ', num2str(length(eFilterInd))]);
 
@@ -68,21 +68,23 @@ if testFlag
 end
 
 %% Perform cascade
-cascade = generateCascade(posX,negX,fRate,dRate,FRate,cTemp,MAX_N,MAX_ENS,NPredToSample,CASCADE_VERBOSE);
+cascade = generateCascade(posX,negX,fRate,dRate,FRate,cTemp,MIN_N,MAX_N,MAX_ENS,NPredToSample,CASCADE_VERBOSE);
 
 %% Determine utilized features for cascade
 cFilterInd = cell(size(cascade));
 cFiltersUsed = cell(size(cascade));
-allUsed = zeros(1,length(filters));
+allUsed = zeros(length(filters),1);
+numFilters = 0;
 for i = 1:length(cascade)
     used = sum(cascade{i}.UsePredForLearner,2);
     allUsed = allUsed + used;
     cFilterInd{i} = find(used ~= 0);
-    cFiltersUsed{i} = filters(cFilterInd);
+    cFiltersUsed{i} = filters(cFilterInd{i});
+    numFilters = numFilters + length(cFilterInd{i});
 end
 
 disp('======================');
-disp(['Num of filters used: ', num2str(length(cFilterInd))]);
+disp(['Num of filters used: ', num2str(numFilters)]);
 
 %% Test how good the model is on training data
 if testFlag
@@ -100,6 +102,7 @@ model = struct('filterSize', FILTER_SIZE);
 model.filters = cFiltersUsed;
 model.numParams = length(filters);
 model.filterInd = cFilterInd;
+
 model.cascade = cascade;
 
 if saveFlag
