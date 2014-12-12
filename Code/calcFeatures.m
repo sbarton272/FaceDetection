@@ -3,11 +3,15 @@ function [features] = calcFeatures(integralImg, integralImgSqr, ix, iy, scale, f
 % specified x,y location (upper left) - NOTE 0 indexed
 % filters is a cell array of vectors of filter structs
 
+% Make sure ix, iy correct type
+ix = int32(ix);
+iy = int32(iy);
+
 % Prealloc features
 features = zeros(1,length(filters));
 
 % Pad img with zero area
-[h w] = size(integralImg);
+[h, w] = size(integralImg);
 integralImg = [zeros(1,w+1); zeros(h,1) integralImg];
 integralImgSqr = [zeros(1,w+1); zeros(h,1) integralImgSqr];
 

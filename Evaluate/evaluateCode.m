@@ -15,13 +15,23 @@ for i=1:length(data)
 
     %% If desired show bounding boxes
     if showBox
+        [overlapBoxes, noOverlapBoxes] = overlapedBoxes(data{i}.bboxes, bboxes);
+        bboxes = noOverlapBoxes;
+        
+        % Save all false detects
+        for j = 1:size(bboxes,1)
+            bb = bboxes(j,:);
+            I = img(bb(2):bb(2)+bb(4),bb(1):bb(1)+bb(3));
+            imshow(I);
+            pause;
+            imwrite(I,['neg/neg_',num2str(randi(99999)),'.jpg']); 
+        end
+        
+        
         nBoxes = size(data{i}.bboxes,1);
         nFoundBoxes = size(bboxes,1);
-        clrs = [repmat(clrBlue, nBoxes,1); repmat(clrGreen, nFoundBoxes,1)];
-
-        [overlapBoxes, noOverlapBoxes] = overlapedBoxes(data{i}.bboxes, bboxes)
-        
-        boxes = [data{i}.bboxes; overlapBoxes];
+        clrs = [repmat(clrBlue, nBoxes,1); repmat(clrGreen, nFoundBoxes,1)];        
+        boxes = [data{i}.bboxes; bboxes];
         shapeInserter = vision.ShapeInserter('BorderColor','Custom', 'CustomBorderColor', clrs);
         img = step(shapeInserter, double(img), boxes);
         numFound = size(bboxes);

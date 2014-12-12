@@ -6,11 +6,11 @@ function model = train(devFlag, testFlag, saveFlag)
 CASCADE_VERBOSE = true;
 
 fRate = .3;
-dRate = .90;
+dRate = .95;
 FRate = .001;
 
 N = 10;
-NPredToSample = 30;
+NPredToSample = 35;
 eTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
 % Quadratic better, N can get too big, NPredToSample is the key > 20
 
@@ -29,7 +29,7 @@ if devFlag
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
 else
     FILTER_SIZE = [24 16];
-    SAVE_DIR = 'training/';
+    SAVE_DIR = 'smTraining/';
     FACE_DATA_FILE = '../LabeledData/smTrainData.mat';
     NEG_EX_FILE = '../LabeledData/smTrainNegData.mat';
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
