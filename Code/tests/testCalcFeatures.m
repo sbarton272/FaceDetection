@@ -1,8 +1,8 @@
 
 addpath('..')
 
-f1 = struct('x',0,'y',0,'w',1,'h',1,'weight',2);
-f2 = struct('x',1,'y',1,'w',1,'h',1,'weight',-1);
+f1 = [0,0,1,1,2];
+f2 = [1,1,1,1,-1];
 filters1 = {};
 filters1{1} = [f1; f2];
 
@@ -11,9 +11,16 @@ filters{2} = f2;
 
 I = ones(4);
 iI = cumsum(cumsum(I),2)
+iI2 = cumsum(cumsum(I.^2),2)
 
-assert(calcFeatures(iI,0,0,1,filters1) == 1)
-assert(calcFeatures(iI,0,1,1,filters1) == 1)
-assert(calcFeatures(iI,0,0,2,filters1) == 4)
+assert(calcFeatures(iI,iI2,1,1,1,filters1,[2 2]) == 0)
+assert(calcFeatures(iI,iI2,1,2,1,filters1,[2 2]) == 0)
+assert(calcFeatures(iI,iI2,1,1,2,filters1,[2 2]) == 0)
 
-applyFilters({I}, filters)
+applyFilters({I}, filters, [2 2])
+
+filters = generateFilters(4, 4);
+for i = 1:length(filters)
+   visualizeFilter(filters{i}, [4 4]);
+   pause;
+end

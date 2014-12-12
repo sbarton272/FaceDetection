@@ -21,9 +21,9 @@ cTemp = templateDiscriminant('DiscrimType','pseudoQuadratic','SaveMemory','on');
 
 %% Load data or compute if not already computed
 if devFlag
-    FILTER_SIZE = [12 8];
+    FILTER_SIZE = [24 16];
     SAVE_DIR = 'dev/';
-    FACE_DATA_FILE = '../LabeledData/delData.mat';
+    FACE_DATA_FILE = '../LabeledData/devData.mat';
     NEG_EX_FILE = '../LabeledData/devNegData.mat';
 	[posX, negX, filters] = loadExamples(SAVE_DIR, FACE_DATA_FILE, NEG_EX_FILE, FILTER_SIZE);
 else
@@ -155,7 +155,7 @@ catch
         load([SAVE_DIR, 'posX.mat'], 'posX');
     catch
         disp('Generating positive example features');
-        posX = applyFilters(faces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
+        posX = applyFilters(faces, filters, FILTER_SIZE);
         save([SAVE_DIR, 'posX.mat'], 'posX');
     end
 
@@ -164,7 +164,7 @@ catch
         load([SAVE_DIR, 'negX.mat'], 'negX');
     catch
         disp('Generating negative example features');
-        negX = applyFilters(nonFaces, filters, FILTER_SIZE(1), FILTER_SIZE(2));
+        negX = applyFilters(nonFaces, filters, FILTER_SIZE);
         save([SAVE_DIR, 'negX.mat'], 'negX');
     end
 end

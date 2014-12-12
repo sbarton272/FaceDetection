@@ -6,9 +6,10 @@ function [features] = calcFeatures(integralImg, integralImgSqr, ix, iy, scale, f
 % Prealloc features
 features = zeros(1,length(filters));
 
-% Make zero indexed
-ix = ix - 1;
-iy = iy - 1;
+% Pad img with zero area
+[h w] = size(integralImg);
+integralImg = [zeros(1,w+1); zeros(h,1) integralImg];
+integralImgSqr = [zeros(1,w+1); zeros(h,1) integralImgSqr];
 
 % Calc window mean and variance
 N = scale*filterSize(1) * scale*filterSize(2);
@@ -42,39 +43,21 @@ coef = 0.0;
 
 % Calculate regions
 for i = 1:size(fltr,1)
-	region = fltr(i);
-    x = double(region.x);
-    y = double(region.y);
-    w = double(region.w);
-    h = double(region.h);
-    weight = double(region.weight);
 
 	% Calc corners on img
-	x1 = ix + x*scale;
-	x2 = x1 + w*scale;
-	y1 = iy + y*scale;
-	y2 = y1 + h*scale;
+	x1 = ix + fltr(i,1)*scale;
+	x2 = x1 + fltr(i,3)*scale;
+	y1 = iy + fltr(i,2)*scale;
+	y2 = y1 + fltr(i,4)*scale;
 
-	% Use integral image properties
-	area = getArea(iI,x1,x2,y1,y2);
-    areaAvg = mu * h*scale * w*scale;
-    area = area - areaAvg;
-	coef = coef + area*weight;
+	% Use integral image properties and subtract mean
+	area = getArea(iI,x1,x2,y1,y2) - (mu*fltr(i,3)*scale*fltr(i,4)*scale);
+	coef = coef + area*fltr(i,5); % factor in weight
 
 end
 
 end
 
 function A = getArea(iI,x1,x2,y1,y2)
-	A = get(iI,x2,y2) - get(iI,x1,y2) - get(iI,x2,y1) + get(iI,x1,y1);
-end
-
-function x = get(X, ix, iy)
-    if ix <= 0
-        x = 0;
-    elseif iy <= 0
-        x = 0;
-    else
-        x = X(iy,ix);
-    end
+	A = iI(y2,x2) - iI(y2,x1) - iI(y1,x2) + iI(y1,x1);
 end
