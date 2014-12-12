@@ -1,7 +1,78 @@
-This is the baseline algorith for the 18-794 F14 contest.
-It correlates the zero-mean average face from the training data
-with the frame at various sizes and uses non-maximal suppression and
-thresholding to find faces.
+Spencer Barton
+Face Detection Competition
 
-Negative Examples from: http://www.robots.ox.ac.uk/~vgg/data/data-cats.html
-- used Google "things" dataset and Caltech Background dataset
+I implemented Viola-Jones.
+
+Sources
+=======
+
+I read the paper from here: http://www.vision.caltech.edu/html-files/EE148-2005-Spring/pprs/viola04ijcv.pdf
+
+The positive training examples were provided. 
+
+I pulled additional negative examples from: http://www.robots.ox.ac.uk/~vgg/data/data-cats.html where I used the Google "things" dataset and the Caltech Background dataset
+
+Algorithm
+=========
+
+Examples
+--------
+1) I extracted faces from the training set as my positive examples
+2) I loaded negative images and took samples from some to increase the count of negative examples
+3) All images are converted to grayscale
+
+Filters
+-------
+1) I generated filters based on the filters used in the paper
+
+2) Filters consist of rectangular areas that are added together
+
+3) 5 designs: vertical and horizontal pair bars, vertical and horizontal triplet bars and xor rectangles. Examples of these filters in a 4x4 case:
+Pair bars:
+[1  1 -1 -1
+ 1  1 -1 -1
+ 1  1 -1 -1
+ 1  1 -1 -1]
+Triplet Bars:
+[ 1  1  1  1
+ -1 -1 -1 -1
+  1  1  1  1
+  0  0  0  0]
+XOR Square:
+[ 1  1 -1 -1
+  1  1 -1 -1
+ -1 -1  1  1
+ -1 -1  1  1]
+
+4) A large number of filters were generated of varying sizes and positions. All of the filters are designed to fit within the target window (4x4 in the above example)
+
+Calculating Features
+--------------------
+1) The above filters are multiplied by the image and then summed to provide a single value.
+2) In practice this can be done very efficiently with an integral image which allows the summing computation to be done in constant time.
+3) Integral images are computed as below where each cell represents the sum of all the cells above and left inclusive.
+
+[1 1   => [1 2
+ 1 1]	   2 4]
+
+This allows rectangular area sums to be computed in constant time.
+
+Cascade Classifier
+------------------
+
+1) Once all of the filters have been applied to the training examples, I train a boosted classifier.
+2) The basic element is the ensemble learner. I use Matlab's implementation - the Subspace version which utilizes linear discriminators as weak learners. The main advantage of Subspace is it utilizes a subset of the dimensionality. Dimensionality reduction is a very important component of the Viola Jones algorithm as there are a huge number of features.
+3) One of the key features of Viola Jones is the cascade classifier. In addition to utilizing boosting, classifier can be chained together to increase performance. The basic idea is that the majority of non-faces can be initially filtered out with little work. Subsequent classifiers can then filter out the harder to classify non-faces.
+4) The cascade training process is a little bit complicated but the basic idea is that the cost of false detects is decreased until positive detection rate is high enough. Then weak learners are added to bring the false detection rate back down. After a few iterations the classifier is set. The negative examples are then run through the classifier and any false detections are passed to the next classifier.
+5) I was never able to run my classifier with as much data as Viola-Jones so I found that I needed to set a max limit on the number of weak learners, cost of false detection and length of the cascade to ensure that I did not overfit (which I still did regardless) and to ensure that the algorithm terminated.
+6) With the trained cascade I then ran through some validation data to see how well it performed.
+7) The cascade took awhile to train because of the huge number of features but was quick on classification since at each stage of the cascade a small number of features are utilized.
+8) Finally I saved the model
+
+Classification
+--------------
+
+Nothing too special here
+1) I resize the image at varying scales, compute the integral image and then run a window over the image looking for faces.
+2) The window spacing scales proportionally with time.
+3) Windows are passed through the cascade and features are calculated as necessary at each stage of the cascade. If a window makes it through the whole cascade it is classified as a face.

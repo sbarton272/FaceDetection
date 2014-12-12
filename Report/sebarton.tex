@@ -1,0 +1,66 @@
+%----------------------------------------
+% 15-150 Assignment 4
+% Fall 2012
+%----------------------------------------
+
+\documentclass[letterpaper,12pt]{article}
+\oddsidemargin0cm
+\topmargin-2cm     %I recommend adding these three lines to increase the
+\textwidth16.5cm   %amount of usable space on the page (and save trees)
+\textheight23.5cm
+
+% SET THESE VARIABLES
+\newcommand{\myName}{Spencer Barton (sebarton)}
+\newcommand{\className}{18-794}
+\newcommand{\dueDate}{December 12, 2014}
+\newcommand{\assignmentName}{Face Detection Competition}
+
+%Packages
+\usepackage{sectsty}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+%\usepackage{enumerate}
+%\usepackage{stmaryrd}
+\usepackage{dsfont}
+\usepackage{amsmath}
+
+%Set header/footer
+\pagestyle{fancyplain}
+\fancyhf{}
+\lhead{\fancyplain{}{\myName}}
+\rhead{\fancyplain{}{\assignmentName}}
+\rfoot{\fancyplain{}{\thepage\ of \pageref{LastPage}}}
+
+% Title
+\title{\className \\ \assignmentName}
+\author{\myName}
+\date{\dueDate}
+
+% Defining own vars
+\newcommand{\ttt}[1]{\texttt{#1}}  % texttt{} shortcut
+
+\begin{document}
+
+\maketitle
+
+The contest report should include a brief description about each of your attempts in the contest (what you did, why you did it, why you think it did not work if it didn't, how you chose the parameter, etc.). It does not need to follow the paper format of the final project report. The more we see you put in a good effort in the contest, the more lenient we can be in the grading of the contest. The contest report is due  Friday Dec. 12 at 11:59:59 pm, please send PDF to both TAs.
+
+\section{Overview}
+I decided to implement Viola-Jones. The actual algorithm that I implemented is described in \textit{algorithm.txt}.
+
+\section{Modifications from Viola-Jones}
+- window size
+- limited features
+
+\section{Trials and Tribulations}
+
+- running out of memory
+- quadratic vs linear
+- varying the number of weak learners
+- varying the number of parameters
+- cascade vs single boosted learner
+- over-fitting
+- increasing negative examples
+- PCA failure
+
+\end{document}

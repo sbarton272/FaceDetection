@@ -6,3 +6,8 @@ Code/validation/
 code/validation24/
 Code/smTraining/
 *.zip
+*.aux
+*.bbl
+*.blg
+*.log
+*.synctex.gz
