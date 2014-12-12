@@ -14,20 +14,22 @@ for i=1:length(data)
     end
 
     %% If desired show bounding boxes
-    if showBox
-        [overlapBoxes, noOverlapBoxes] = overlapedBoxes(data{i}.bboxes, bboxes);
-        bboxes = noOverlapBoxes;
-        
-        % Save all false detects
-        for j = 1:size(bboxes,1)
+    [overlapBoxes, noOverlapBoxes] = overlapedBoxes(data{i}.bboxes, bboxes);
+    bboxes = noOverlapBoxes;
+
+    % Save all false detects
+    for j = 1:size(bboxes,1)
+        try
             bb = bboxes(j,:);
-            I = img(bb(2):bb(2)+bb(4),bb(1):bb(1)+bb(3));
-            imshow(I);
-            pause;
+            I = img(bb(2):bb(2)+bb(4)-1,bb(1):bb(1)+bb(3)-1);
             imwrite(I,['neg/neg_',num2str(randi(99999)),'.jpg']); 
+        catch
+            imshow(img);
+            bb
         end
-        
-        
+    end
+    
+    if showBox
         nBoxes = size(data{i}.bboxes,1);
         nFoundBoxes = size(bboxes,1);
         clrs = [repmat(clrBlue, nBoxes,1); repmat(clrGreen, nFoundBoxes,1)];        

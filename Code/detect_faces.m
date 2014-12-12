@@ -36,18 +36,14 @@ function [bboxes] = detect_faces(frame,model)
         yStep = max(uint32(round(Y_STEP_SIZE * scale)), 1);
         for x = 1:xStep:maxX
             for y = 1:yStep:maxY
-                
                 %% Detect face
                 if predictCascade(model, X, integralImg, integralImgSqr, x, y, 1)
                     bb = [double(x), double(y), ...
                             double(model.filterSize(2)), double(model.filterSize(1))];
-                    bb = bb / scale
+                    bb = bb / scale;
                     bboxes = [bboxes; bb];
                 end
             end
         end
-
-        break;
-
     end
 end
