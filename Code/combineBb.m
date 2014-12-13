@@ -2,7 +2,7 @@ function centroids = combineBb(bb)
 
 N = size(bb,1);
 
-centroids = combine(bb,3);
+centroids = combine(bb,2);
 while N ~= size(centroids,1);
     N = size(centroids,1);
     centroids = combine(centroids,1);
