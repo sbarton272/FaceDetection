@@ -1,9 +1,9 @@
 function [bboxes] = detect_faces(frame,model)
     %% Consts
-    MIN_SCALE = 4;
-    SCALE_FACTOR = .25;
-    X_STEP_SIZE = model.filterSize(2)/2;
-    Y_STEP_SIZE = model.filterSize(1)/2;
+    MIN_SCALE = 1;
+    SCALE_FACTOR = .5;
+    X_STEP_SIZE = model.filterSize(2);
+    Y_STEP_SIZE = model.filterSize(1);
 
     %% Convert input image
     I = frame;
@@ -23,10 +23,6 @@ function [bboxes] = detect_faces(frame,model)
     while(size(frame,1) > MIN_SCALE*model.filterSize(1) && ...
           size(frame,2) > MIN_SCALE*model.filterSize(2))
         
-        %% Reduce dimensions
-        scale = scale*SCALE_FACTOR;
-        frame = imresize(frame, SCALE_FACTOR);
-
         %% Integral images
         integralImg = cumsum(cumsum(frame),2);
         integralImgSqr = cumsum(cumsum(frame.^2),2);
@@ -48,5 +44,12 @@ function [bboxes] = detect_faces(frame,model)
                 end
             end
         end
+
+        %% Reduce dimensions
+        scale = scale*SCALE_FACTOR;
+        frame = imresize(frame, SCALE_FACTOR);
+
     end
+    
+    bboxes = combineBb(bboxes);
 end
