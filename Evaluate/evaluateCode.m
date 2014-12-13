@@ -14,8 +14,8 @@ for i=1:length(data)
     end
 
     %% If desired show bounding boxes
-    [overlapBoxes, noOverlapBoxes] = overlapedBoxes(data{i}.bboxes, bboxes);
-    bboxes = noOverlapBoxes;
+    %[overlapBoxes, noOverlapBoxes] = overlapedBoxes(data{i}.bboxes, bboxes);
+    %bboxes = noOverlapBoxes;
 
     % Save all false detects
 %     for j = 1:size(bboxes,1)

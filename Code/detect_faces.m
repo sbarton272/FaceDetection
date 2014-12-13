@@ -1,9 +1,9 @@
 function [bboxes] = detect_faces(frame,model)
     %% Consts
     MIN_SCALE = 4;
-    SCALE_FACTOR = .5;
-    X_STEP_SIZE = model.filterSize(2);
-    Y_STEP_SIZE = model.filterSize(1);
+    SCALE_FACTOR = .25;
+    X_STEP_SIZE = model.filterSize(2)/2;
+    Y_STEP_SIZE = model.filterSize(1)/2;
 
     %% Convert input image
     I = frame;
@@ -14,10 +14,12 @@ function [bboxes] = detect_faces(frame,model)
     scale = 1;
     X = zeros(1,model.numParams);
     
-    % Prescale down
-    scale = scale*SCALE_FACTOR;
-    frame = imresize(frame, SCALE_FACTOR);
-    
+    % Prescale down until 1/20the scale
+    minSize = model.filterSize * 20;
+    sz = size(frame);
+    scale = scale * minSize(2) / sz(2);
+    frame = imresize(frame, [NaN minSize(2)]);
+
     while(size(frame,1) > MIN_SCALE*model.filterSize(1) && ...
           size(frame,2) > MIN_SCALE*model.filterSize(2))
         
@@ -38,6 +40,7 @@ function [bboxes] = detect_faces(frame,model)
             for y = 1:yStep:maxY
                 %% Detect face
                 if predictCascade(model, X, integralImg, integralImgSqr, x, y, 1)
+                %if true
                     bb = [double(x), double(y), ...
                             double(model.filterSize(2)), double(model.filterSize(1))];
                     bb = bb / scale;
