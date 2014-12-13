@@ -17,7 +17,7 @@ Algorithm
 
 Examples
 --------
-1) I extracted faces from the training set as my positive examples
+1) I extracted faces from the training set as my positive examples and split the data into a validate and train data set.
 2) I loaded negative images and took samples from some to increase the count of negative examples
 3) All images are converted to grayscale
 

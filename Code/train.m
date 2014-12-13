@@ -109,7 +109,7 @@ if saveFlag
     if devFlag
         save('dev/trainedModel.mat', 'model');
     else
-        save('training/trainedModel.mat', 'model');
+        save('smTraining/trainedModel.mat', 'model');
     end
 end
 

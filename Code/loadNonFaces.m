@@ -30,7 +30,9 @@ for i = 1:length(data)
     I2 = imresize(I2, [height, width]);
     I3 = imresize(I3, [height, width]);
     I4 = imresize(I4, [height, width]);
-    
+
+    nonFaces{k} = I;
+	k = k + 1;
 	nonFaces{k} = I1;
 	k = k + 1;
     nonFaces{k} = I2;
