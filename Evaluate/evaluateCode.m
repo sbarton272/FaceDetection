@@ -18,16 +18,16 @@ for i=1:length(data)
     bboxes = noOverlapBoxes;
 
     % Save all false detects
-    for j = 1:size(bboxes,1)
-        try
-            bb = bboxes(j,:);
-            I = img(bb(2):bb(2)+bb(4)-1,bb(1):bb(1)+bb(3)-1);
-            imwrite(I,['neg/neg_',num2str(randi(99999)),'.jpg']); 
-        catch
-            imshow(img);
-            bb
-        end
-    end
+%     for j = 1:size(bboxes,1)
+%         try
+%             bb = bboxes(j,:);
+%             I = img(bb(2):bb(2)+bb(4)-1,bb(1):bb(1)+bb(3)-1);
+%             imwrite(I,['neg/neg_',num2str(randi(99999)),'.jpg']); 
+%         catch
+%             imshow(img);
+%             
+%         end
+%     end
     
     if showBox
         nBoxes = size(data{i}.bboxes,1);
